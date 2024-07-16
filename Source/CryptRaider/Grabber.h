@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "Grabber.generated.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+
+#include "Grabber.generated.h" // Must be the last thing in the header file
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -30,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Release();
 
+	UPROPERTY(BlueprintReadOnly)
+	bool IsGrabbing = false;
+
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -40,5 +46,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float HoldDistance = 200;
+
+	UPhysicsHandleComponent* GetPhysicsHandle() const;
 
 };
