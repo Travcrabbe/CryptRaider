@@ -2,6 +2,7 @@
 
 
 #include "TriggerComponent.h"
+#include "GameFramework/Actor.h"
 
 UTriggerComponent::UTriggerComponent()
 {
@@ -23,11 +24,18 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (GetUnlockingActor() != nullptr) {
-		UE_LOG(LogTemp, Display, TEXT("Unlocking!"));
+	AActor* Actor = GetUnlockingActor();
+
+    if (Actor != nullptr) {
+		UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
+
+		if (Component != nullptr) {
+			Component->SetSimulatePhysics(false);
+			Actor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+		}
 		Mover->SetShouldMove(true);
 	} else {
-		UE_LOG(LogTemp, Display, TEXT("Relocking!"));
+
 		Mover->SetShouldMove(false);
 	}
 
@@ -37,12 +45,15 @@ void UTriggerComponent::SetMover(UMover* NewMover) {
 	Mover = NewMover;
 }
 
+
+// Return actor with correct tag and that is not currently being held
 AActor* UTriggerComponent::GetUnlockingActor() const {
+
 	TArray<AActor*> Actors;
     GetOverlappingActors(Actors);
 
 	for (AActor* Actor : Actors) {
-		if (Actor->ActorHasTag(UnlockTag)) {
+		if (Actor->ActorHasTag(UnlockTag) && !Actor->ActorHasTag("Grabbed")) {
 			return Actor;
 		}
 	}
